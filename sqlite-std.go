@@ -1,3 +1,4 @@
+//go:build !js
 // +build !js
 
 // Copyright: Jonathan Hall
@@ -8,7 +9,6 @@ package anki
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 
 	"github.com/jmoiron/sqlx"
@@ -51,7 +51,7 @@ func OpenDB(src io.Reader) (db *DB, e error) {
 }
 
 func dumpToTemp(src io.Reader) (string, error) {
-	tmp, err := ioutil.TempFile("/tmp", "anki-sqlite3-")
+	tmp, err := os.CreateTemp("/tmp", "anki-sqlite3-")
 	if err != nil {
 		return "", err
 	}

@@ -20,6 +20,7 @@ type Apkg struct {
 	closer *zip.ReadCloser
 	sqlite *zip.File
 	media  *zipIndex
+	meta   *zipIndex
 	db     *DB
 }
 
@@ -114,7 +115,7 @@ func (a *Apkg) populateIndex() error {
 	}
 
 	if sqlite, ok := index.index["collection.anki2"]; !ok {
-		return errors.New("Unable to find `collection.anki2` in archive")
+		return errors.New("unable to find `collection.anki2` in archive")
 	} else {
 		a.sqlite = sqlite
 	}
@@ -133,7 +134,9 @@ func (a *Apkg) populateIndex() error {
 	}
 	for idx, filename := range mediaMap {
 		a.media.index[filename] = index.index[idx]
+		delete(index.index, idx)
 	}
+	a.meta = index
 	return nil
 }
 

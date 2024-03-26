@@ -6,24 +6,23 @@ package anki
 import (
 	"archive/zip"
 	"bytes"
+	"errors"
 	"image"
 	"image/jpeg"
+	"maps"
 	"strings"
 )
 
 // CompressImages resizes all images inside a deckfile
-// to a specified maximum size in KB and returns the 
+// to a specified maximum size in KB and returns the
 // compressed deck
-// Copyright: Daniel Heidemann
-// License: GNU AGPL, Version 3 or later; http://www.gnu.org/licenses/agpl.html
 func (a *Apkg) CompressImages(maxSizeKB int) ([]byte, error) {
 	maxImageSize := maxSizeKB * 1024 // KB in bytes
 	var buf bytes.Buffer
 	writer := zip.NewWriter(&buf)
 
 	deckfiles := a.media.index
-	deckfiles["collection.anki2"] = a.reader.File[0]
-	deckfiles["media"] = a.reader.File[len(a.reader.File)-1]
+	maps.Copy(deckfiles, a.meta.index)
 
 	for filename, zipFile := range deckfiles {
 		filedata, err := a.ReadMediaFile(filename)
@@ -35,7 +34,7 @@ func (a *Apkg) CompressImages(maxSizeKB int) ([]byte, error) {
 		if prefix == "paste" && len(filedata) > maxImageSize {
 			filedata, err = compressImage(filedata, maxImageSize)
 			if err != nil {
-				return nil, err
+				return nil, errors.New("unsupported file type")
 			}
 		}
 
@@ -70,7 +69,7 @@ func compressImage(data []byte, maxImageSize int) ([]byte, error) {
 		buf.Reset()
 		err := jpeg.Encode(&buf, img, &jpeg.Options{Quality: quality})
 		if err != nil {
-			return nil, err
+			return data, err
 		}
 
 		quality -= step
