@@ -1,4 +1,4 @@
-module anki
+module github.com/dheidemann/anki-go
 
 go 1.22.1
 
