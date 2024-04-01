@@ -1,6 +1,6 @@
 module github.com/dheidemann/anki-go
 
-go 1.22.1
+go 1.18
 
 require (
 	github.com/jmoiron/sqlx v1.3.5
